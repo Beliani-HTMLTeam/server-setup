@@ -24,6 +24,7 @@
       "name": "sops",
       "version": "0.1.0",
       "dependencies": {
+        "@iconify-react/basil": "^1.0.2",
         "next": "^16.2.6",
         "nextra": "4.5.0",
         "nextra-theme-docs": "4.5.0",
@@ -155,6 +156,10 @@
     "@humanwhocodes/module-importer": ["@humanwhocodes/module-importer@1.0.1", "", {}, "sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA=="],
 
     "@humanwhocodes/retry": ["@humanwhocodes/retry@0.4.3", "", {}, "sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ=="],
+
+    "@iconify-react/basil": ["@iconify-react/basil@1.0.2", "", { "dependencies": { "@iconify/css-react": "^1.0.1" } }, "sha512-bjqpn1ha2wJmW+Q32netivxq7y18ypJ7V/9TbqZm1fYoi0dfA7n8bzbxFD7QQenkvOJ5hOubjtiMEUKHufFSjQ=="],
+
+    "@iconify/css-react": ["@iconify/css-react@1.0.2", "", { "dependencies": { "@iconify/types": "^2.0.0" }, "peerDependencies": { "react": ">=18.0.0" } }, "sha512-k33FKG4jGgd8odos+1HdSwCKZOQ5F1heQxwl/zDrA53tLg5IseDPMqsmQbcCEZ6E0Zgcrmfo4ceFSBmbuEvGtw=="],
 
     "@iconify/types": ["@iconify/types@2.0.0", "", {}, "sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg=="],
 

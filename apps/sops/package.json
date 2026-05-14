@@ -10,6 +10,7 @@
     "postbuild": "pagefind --site .next/server/app --output-path public/_pagefind"
   },
   "dependencies": {
+    "@iconify-react/basil": "^1.0.2",
     "next": "^16.2.6",
     "nextra": "4.5.0",
     "nextra-theme-docs": "4.5.0",

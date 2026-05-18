@@ -46,7 +46,7 @@ export default async function RootLayout({ children }) {
       >
         {/* Your additional tags should be passed as `children` of `<Head>` element */}
       </Head>
-      <body className="flex flex-col w-3xl min-h-screen">
+      <body>
         <Layout
           banner={config.banner || undefined}
           navbar={config.navbar || undefined}

@@ -1,0 +1,29 @@
+class Logger {
+  log(...args: any[]) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log(...args)
+    }
+  }
+
+  error(...args: any[]) {
+    console.error(...args)
+  }
+
+  warn(...args: any[]) {
+    console.warn(...args)
+  }
+
+  info(...args: any[]) {
+    console.info(...args)
+  }
+
+  debug(...args: any[]) {
+    if (process.env.NODE_ENV === 'development') {
+      console.debug(...args)
+    }
+  }
+}
+
+const Hermes = new Logger()
+
+export { Hermes }

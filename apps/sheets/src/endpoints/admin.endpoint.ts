@@ -1,3 +1,6 @@
+// @deprecated
+// we'll move to better-auth once we settle with sheets-api & docs
+
 import { t } from 'elysia'
 
 // token store

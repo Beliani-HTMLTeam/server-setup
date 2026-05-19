@@ -1,7 +1,7 @@
 import { GoogleSpreadsheet } from 'google-spreadsheet'
 import { JWT } from 'google-auth-library'
-import credentials from '../google-credentials.json'
-import spreadsheets from '../spreadsheets.json'
+import credentials from '../data/google-credentials.json'
+import spreadsheets from '../data/spreadsheets.json'
 
 const xlsxAccount = new JWT({
   email: credentials.client_email,

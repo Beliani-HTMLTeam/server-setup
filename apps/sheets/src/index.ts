@@ -3,16 +3,12 @@ import { Elysia, t } from 'elysia'
 import cors from '@elysiajs/cors'
 import openapi from '@elysiajs/openapi'
 
-import { prewarmStaticEndpoints } from './services/cache'
+import { Sheet } from './utils/Sheet'
 
-import { getLocalLanIp } from './utils/network'
-import { registerOther } from './utils/registerEndpoints'
 import { registerDynamic } from './endpoints/dynamic/sheet_tab.endpoint'
 import { registerAllAtOnce } from './endpoints/static/registerAllAtOnce'
-
-import { resolve } from 'path'
-
-const localIp = getLocalLanIp()
+import { registerOther } from './utils/registerEndpoints'
+import { AppBootstrapper } from './AppBootstrapper'
 
 export const app = new Elysia({
   normalize: true,
@@ -100,12 +96,4 @@ export const app = new Elysia({
 
 registerOther(app)
 
-// Prewarm caches on startup (fire and forget, don't await at module level to avoid async module)
-prewarmStaticEndpoints().catch((err) => {
-  console.error('Error prewarming static endpoints:', err)
-})
-
-// Bind to all interfaces so the server is reachable from the LAN.
-app.listen({ port: 3000, hostname: '0.0.0.0' })
-
-console.log(`-> Visit API docs @ http://${localIp}:3000/docs`)
+AppBootstrapper.startServer()

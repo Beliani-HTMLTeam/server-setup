@@ -38,4 +38,3 @@ yarn-error.log*
 *.pem
 
 apps/docs/_pagefind/
-apps/docs/content/docs/

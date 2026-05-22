@@ -1,0 +1,3 @@
+[submodule "apps/docs/content"]
+	path = apps/docs/content
+	url = https://github.com/Beliani-HTMLTeam/docs-content/

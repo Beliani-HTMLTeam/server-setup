@@ -1,0 +1,127 @@
+@use 'sass:color';
+
+.test {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 32px;
+
+  color: color.adjust($color: rgb(255, 255, 255), $alpha: -0.15);
+
+  h1 {
+    font-weight: 500;
+    color: color.adjust($color: rgb(255, 255, 255), $alpha: -0.05);
+  }
+}
+
+.actionRow {
+  width: min(720px, 100%);
+  display: grid;
+  grid-template-columns: 7fr 3fr;
+  gap: 16px;
+}
+
+.docsLink {
+  border: 0;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px 32px;
+  border-radius: 32px;
+  font-size: 16px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 200;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  text-decoration: none;
+  transition:
+    transform 0.9s ease,
+    background-color 0.5s ease;
+
+  &:hover {
+    background: rgba(95, 85, 85, 0.308);
+    transform: scale(1.03);
+  }
+}
+
+.loginButton {
+  border: 0;
+  background: black;
+  color: white;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 32px;
+  border-radius: 32px;
+  font-size: 16px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 200;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+
+  transition:
+    transform 0.9s ease,
+    background-color 0.5s ease;
+
+  &:hover {
+    background: rgba(95, 85, 85, 0.308);
+  }
+
+  svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  svg,
+  span {
+    z-index: 10;
+  }
+
+  &:before,
+  &:after {
+    position: absolute;
+    width: 60px;
+    height: 200%;
+    top: -50%;
+    content: '';
+    z-index: 0;
+
+    transform: skewY(-35deg) rotateZ(35deg);
+
+    transition: transform 0.9s ease;
+  }
+
+  &:before {
+    background: rgba(122, 118, 118, 0.308);
+    transform: skewY(-35deg) rotateZ(35deg) translateX(-120px);
+  }
+
+  &:after {
+    background: rgba(95, 85, 85, 0.308);
+    transform: skewY(-35deg) rotateZ(35deg) translateX(-160px);
+    transition-duration: 0.7s;
+  }
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &:hover:before {
+    transform: skewY(-35deg) rotateZ(35deg) translateX(500%);
+  }
+
+  &:hover:after {
+    transform: skewY(-35deg) rotateZ(35deg) translateX(500%);
+  }
+}

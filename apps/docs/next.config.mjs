@@ -1,7 +1,8 @@
 import nextra from 'nextra'
 
 const withNextra = nextra({
-  // ... other Nextra config options
+  contentDirBasePath: '/docs',
+  defaultShowCopyCode: true,
 })
 
 export default withNextra({

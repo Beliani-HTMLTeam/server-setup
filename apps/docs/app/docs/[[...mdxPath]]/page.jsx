@@ -9,6 +9,8 @@ export async function generateMetadata(props) {
   return metadata
 }
 
+export const dynamic = 'force-static';
+
 const Wrapper = getMDXComponents().wrapper
 
 export default async function Page(props) {

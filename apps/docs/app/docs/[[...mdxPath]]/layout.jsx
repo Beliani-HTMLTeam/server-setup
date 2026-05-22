@@ -15,7 +15,7 @@ export default async function LayoutSSR({ children }) {
       banner={settings?.banner}
       navbar={settings?.navbar}
       footer={settings?.footer}
-      docsRepositoryBase="https://github.com/Beliani-HTMLTeam/docs-content"
+      docsRepositoryBase="https://github.com/Beliani-HTMLTeam"
       pagemap={await getPageMap()}
     >
       {children}

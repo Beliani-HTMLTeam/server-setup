@@ -29,7 +29,8 @@
 		"nextra-theme-docs": "4.5.0",
 		"react": "^19.2.6",
 		"react-dom": "^19.2.6",
-		"sass": "^1.99.0"
+		"sass": "^1.99.0",
+		"typescript": "^6.0.3"
 	},
 	"devDependencies": {
 		"@better-auth/cli": "^1.4.21",

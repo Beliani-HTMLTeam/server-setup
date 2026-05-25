@@ -3,7 +3,6 @@ import { Sheet } from './utils/Sheet'
 import { Hermes } from './utils/Logger'
 import cache from './services/Cache'
 import { cacheRefresher } from './services/CacheRefresher'
-import { getLocalLanIp } from './utils/network'
 
 export class AppBootstrapper {
   static async startServer() {
@@ -23,12 +22,12 @@ export class AppBootstrapper {
       cache.isPrewarmed = true
       cacheRefresher.start()
 
-      const port = 3000
-      const localIp = getLocalLanIp()
+      const port = Number(process.env.PORT)
+      const publicUrl = process.env.PUBLIC_URL
 
       app.listen({ port, hostname: '0.0.0.0' })
 
-      Hermes.debug(`-> Visit API docs @ http://${localIp}:${port}/docs`)
+      Hermes.debug(`-> Visit API docs @ ${publicUrl}/docs`)
     }
   }
 }

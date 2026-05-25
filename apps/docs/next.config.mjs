@@ -5,16 +5,18 @@ const withNextra = nextra({
   defaultShowCopyCode: true,
 })
 
+const sheetsAppUrl = process.env.SHEETS_APP_URL.replace(/\/$/, '')
+
 export default withNextra({
   async rewrites() {
     return [
       {
         source: '/api/sheets/:path*',
-        destination: `${process.env.BETTER_AUTH_URL}/:path*`, // Proxy to Elysia app
+        destination: `${sheetsAppUrl}/:path*`, // Proxy to the sheets app
       },
       {
         source: '/api/sheets',
-        destination: `${process.env.BETTER_AUTH_URL}/`, // Proxy root
+        destination: `${sheetsAppUrl}/`, // Proxy root
       },
     ]
   },

@@ -3,11 +3,11 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"build": "bunx --bun next build",
+		"build": "bun --bun next build",
 		"postbuild": "pagefind --site .next/server/app --output-path public/_pagefind",
-		"dev": "bunx --bun next dev",
+		"dev": "bun --bun next dev",
 		"lint": "eslint",
-		"start": "bunx --bun next start"
+		"start": "bun --bun next start"
 	},
 	"dependencies": {
 		"@iconify-react/basil": "^1.0.2",

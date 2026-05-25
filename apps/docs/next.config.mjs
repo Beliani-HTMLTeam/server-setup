@@ -10,11 +10,11 @@ export default withNextra({
     return [
       {
         source: '/api/sheets/:path*',
-        destination: 'http://localhost:3001/:path*', // Proxy to Elysia app
+        destination: `${process.env.BETTER_AUTH_URL}/:path*`, // Proxy to Elysia app
       },
       {
         source: '/api/sheets',
-        destination: 'http://localhost:3001/', // Proxy root
+        destination: `${process.env.BETTER_AUTH_URL}/`, // Proxy root
       },
     ]
   },

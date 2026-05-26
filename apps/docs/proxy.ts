@@ -10,7 +10,7 @@ export async function proxy(request: NextRequest) {
     }
 
     const sessionRes = await fetch(
-      new URL('/api/auth/get-session', request.url),
+      `${process.env.BETTER_AUTH_URL}/api/auth/get-session`,
       {
         headers: {
           cookie: request.headers.get('cookie') || '',

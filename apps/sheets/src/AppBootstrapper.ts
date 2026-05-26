@@ -22,9 +22,10 @@ export class AppBootstrapper {
       cache.isPrewarmed = true
       cacheRefresher.start()
 
-      const port = Number(process.env.PORT)
-
-      app.listen({ port, hostname: '0.0.0.0' })
+      await app.listen({
+        port: 3001,
+        hostname: '0.0.0.0',
+      })
 
       Hermes.debug('-> Visit API docs @ http://127.0.0.1:3001/docs')
     }

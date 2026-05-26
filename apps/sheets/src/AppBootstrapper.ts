@@ -23,11 +23,10 @@ export class AppBootstrapper {
       cacheRefresher.start()
 
       const port = Number(process.env.PORT)
-      const publicUrl = process.env.PUBLIC_URL
 
       app.listen({ port, hostname: '0.0.0.0' })
 
-      Hermes.debug(`-> Visit API docs @ ${publicUrl}/docs`)
+      Hermes.debug('-> Visit API docs @ http://127.0.0.1:3001/docs')
     }
   }
 }

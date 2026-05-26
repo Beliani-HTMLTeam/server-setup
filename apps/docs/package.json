@@ -9,7 +9,7 @@
 		"postbuild": "pagefind --site .next/server/app --output-path public/_pagefind",
 		"dev": "bun --bun next dev --hostname 0.0.0.0 --port 3000",
 		"lint": "eslint",
-		"start": "bun --bun next start --hostname 0.0.0.0 --port 3000"
+		"start": "bun --bun next start --port 3000"
 	},
 	"dependencies": {
 		"@iconify-react/basil": "^1.0.2",

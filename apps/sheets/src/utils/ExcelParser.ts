@@ -46,9 +46,11 @@ export class ExcelParser {
 
     if (!sheetsToProcess.length) {
       Hermes.error(
-        `✖ No sheets to process! workbook.SheetNames:`,
-        workbook.SheetNames
+        `✖ No sheets to process! workbook.SheetNames:`
       )
+
+      workbook.SheetNames.forEach((n) => Hermes.error(`  - ${n}`))
+
       return null
     }
 

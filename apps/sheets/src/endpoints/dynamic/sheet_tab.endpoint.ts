@@ -57,7 +57,10 @@ export function registerDynamic(parent: any) {
         }: any): Promise<Result<any>> => {
           try {
             const sheet = getDynamicSheet(year)
-            const envelope = await sheet.getTab(sheet_tab)
+
+            let cleanTabName = sheet_tab.replace("'", '')
+
+            const envelope = await sheet.getTab(cleanTabName)
 
             if (!envelope) {
               set.status = 404
@@ -93,7 +96,8 @@ export function registerDynamic(parent: any) {
         async ({ params: { sheet_tab, year } }: any): Promise<Result<null>> => {
           try {
             const sheet = getDynamicSheet(year)
-            const res = await sheet.forceRefresh(sheet_tab)
+            let cleanTabName = sheet_tab.replace("'", '')
+            const res = await sheet.forceRefresh(cleanTabName)
 
             return {
               code: 200,
@@ -117,8 +121,9 @@ export function registerDynamic(parent: any) {
           set,
         }: any): Promise<Result<any>> => {
           try {
+            let cleanTabName = sheet_tab.replace("'", '')
             const sheetObj = getDynamicSheet(year)
-            const envelope = await sheetObj.getTab(sheet_tab)
+            const envelope = await sheetObj.getTab(cleanTabName)
 
             if (!envelope) {
               set.status = 404

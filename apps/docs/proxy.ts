@@ -1,38 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSessionCookie } from 'better-auth/cookies'
 
+async function isAuthorized(request: NextRequest): Promise<boolean> {
+  const sessionCookie = getSessionCookie(request)
+  if (!sessionCookie) return false
+
+  const sessionRes = await fetch(
+    `${process.env.BETTER_AUTH_URL}/api/auth/get-session`,
+    {
+      headers: { cookie: request.headers.get('cookie') || '' },
+    }
+  )
+  const session = sessionRes.ok ? await sessionRes.json() : null
+
+  const allowedEmails = (() => {
+    const raw = process.env.ALLOWED_EMAILS
+
+    if (!raw) return []
+
+    try {
+      return JSON.parse(raw)
+    } catch {
+      return raw.split(',').map((e) => e.trim())
+    }
+  })()
+
+  return !!(session && allowedEmails.includes(session.user?.email ?? ''))
+}
+
 export async function proxy(request: NextRequest) {
-  if (request.nextUrl.pathname.startsWith('/docs')) {
-    const sessionCookie = getSessionCookie(request)
+  const pathname = request.nextUrl.pathname
 
-    if (!sessionCookie) {
-      return redirectToLogin(request)
-    }
+  let protectedPaths = ['/docs', '/_pagefind']
 
-    const sessionRes = await fetch(
-      `${process.env.BETTER_AUTH_URL}/api/auth/get-session`,
-      {
-        headers: {
-          cookie: request.headers.get('cookie') || '',
-        },
-      }
-    )
+  if (protectedPaths.some((path) => pathname.startsWith(path))) {
+    const authorized = await isAuthorized(request)
 
-    const session = sessionRes.ok ? await sessionRes.json() : null
-
-    const allowedEmails = (() => {
-      const raw = process.env.ALLOWED_EMAILS
-      if (!raw) return []
-      try {
-        return JSON.parse(raw)
-      } catch {
-        return raw.split(',').map((e) => e.trim())
-      }
-    })()
-
-    if (!session || !allowedEmails.includes(session.user?.email ?? '')) {
-      return redirectToLogin(request)
-    }
+    if (!authorized) return redirectToLogin(request)
   }
 
   return NextResponse.next()
@@ -46,5 +50,5 @@ function redirectToLogin(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/docs/:path*', '/_pagefind/:path*', '/screenshots/:path*'],
+  matcher: ['/docs/:path*', '/_pagefind/:path*'],
 }

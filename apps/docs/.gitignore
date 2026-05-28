@@ -42,3 +42,4 @@ next-env.d.ts
 
 *.db
 public/_pagefind
+better-auth-migrations/

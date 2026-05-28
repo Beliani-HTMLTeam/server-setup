@@ -1,7 +1,13 @@
 import { Cards } from 'nextra/components'
-import { Icon } from './Icon'
+import { Icon, IconName } from './Icon'
 
-const cards = [
+interface Card {
+  icon: IconName
+  title: string
+  href: string
+}
+
+const cards: Card[] = [
   {
     icon: 'bun',
     title: 'Bun',

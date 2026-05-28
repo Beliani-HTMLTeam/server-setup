@@ -96,6 +96,7 @@ export function registerDynamic(parent: any) {
         async ({ params: { sheet_tab, year } }: any): Promise<Result<null>> => {
           try {
             const sheet = getDynamicSheet(year)
+            // https://github.com/PHPOffice/PhpSpreadsheet/issues/1024#issuecomment-504725952
             let cleanTabName = sheet_tab.replace("'", '')
             const res = await sheet.forceRefresh(cleanTabName)
 

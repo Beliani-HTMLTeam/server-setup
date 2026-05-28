@@ -8,6 +8,14 @@ const withNextra = nextra({
 const sheetsAppUrl = process.env.SHEETS_APP_URL.replace(/\/$/, '')
 
 export default withNextra({
+  turbopack: {
+    resolveAlias: {
+      'next-mdx-import-source-file': './mdx-components.js',
+    },
+  },
+  images: {
+    remotePatterns: [new URL('https://pictureserver.net/static/**')],
+  },
   async rewrites() {
     return [
       {

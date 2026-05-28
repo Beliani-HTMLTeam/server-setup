@@ -13,9 +13,9 @@
 	},
 	"dependencies": {
 		"@iconify-react/basil": "^1.0.2",
-		"@iconify-react/material-icon-theme": "^1.0.13",
+		"@iconify-react/material-icon-theme": "^1.0.15",
 		"@iconify-react/mdi": "^1.0.2",
-		"@iconify-react/simple-icons": "^1.0.13",
+		"@iconify-react/simple-icons": "^1.0.14",
 		"@iconify-react/skill-icons": "^1.0.2",
 		"@mdx-js/loader": "^3.1.1",
 		"@mdx-js/react": "^3.1.1",

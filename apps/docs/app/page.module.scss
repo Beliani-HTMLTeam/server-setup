@@ -1,6 +1,6 @@
-@use 'sass:color';
+@use "sass:color";
 
-.test {
+.loginContainer {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
@@ -8,120 +8,130 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  gap: 32px;
 
-  color: color.adjust($color: rgb(255, 255, 255), $alpha: -0.15);
+  .loginMain {
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    flex-direction: column;
+    gap: 32px;
+    background: #750000;
+    padding: 48px;
+    border-radius: 24px;
 
-  h1 {
-    font-weight: 500;
-    color: color.adjust($color: rgb(255, 255, 255), $alpha: -0.05);
-  }
-}
+    color: color.adjust($color: rgb(255, 255, 255), $alpha: -0.15);
 
-.actionRow {
-  width: min(720px, 100%);
-  display: grid;
-  grid-template-columns: 7fr 3fr;
-  gap: 16px;
-}
+    h1 {
+      font-weight: 500;
+      color: color.adjust($color: rgb(255, 255, 255), $alpha: -0.05);
+    }
 
-.docsLink {
-  border: 0;
-  background: rgba(255, 255, 255, 0.08);
-  color: white;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 14px 32px;
-  border-radius: 32px;
-  font-size: 16px;
-  font-family: 'Poppins', sans-serif;
-  font-weight: 200;
-  cursor: pointer;
-  overflow: hidden;
-  position: relative;
-  text-decoration: none;
-  transition:
-    transform 0.9s ease,
-    background-color 0.5s ease;
+    .actionRow {
+      width: min(720px, 100%);
+      display: grid;
+      grid-template-columns: 7fr 3fr;
+      gap: 16px;
+    }
 
-  &:hover {
-    background: rgba(95, 85, 85, 0.308);
-    transform: scale(1.03);
-  }
-}
+    .docsLink {
+      border: 0;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 14px 32px;
+      border-radius: 32px;
+      font-size: 16px;
+      font-family: "Poppins", sans-serif;
+      font-weight: 200;
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
+      text-decoration: none;
+      transition:
+        transform 0.9s ease,
+        background-color 0.5s ease;
 
-.loginButton {
-  border: 0;
-  background: black;
-  color: white;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 32px;
-  border-radius: 32px;
-  font-size: 16px;
-  font-family: 'Poppins', sans-serif;
-  font-weight: 200;
-  cursor: pointer;
-  overflow: hidden;
-  position: relative;
+      &:hover {
+        background: rgba(66, 64, 64, 0.8);
+        transform: scale(1.05);
+      }
+    }
 
-  transition:
-    transform 0.9s ease,
-    background-color 0.5s ease;
+    .loginButton {
+      border: 0;
+      background: black;
+      color: white;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 32px;
+      border-radius: 32px;
+      font-size: 16px;
+      font-family: "Poppins", sans-serif;
+      font-weight: 200;
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
 
-  &:hover {
-    background: rgba(95, 85, 85, 0.308);
-  }
+      transition:
+        transform 0.9s ease,
+        background-color 0.5s ease;
 
-  svg {
-    width: 32px;
-    height: 32px;
-  }
+      &:hover {
+        background: rgba(66, 64, 64, 0.8);
+      }
 
-  svg,
-  span {
-    z-index: 10;
-  }
+      svg {
+        width: 32px;
+        height: 32px;
+      }
 
-  &:before,
-  &:after {
-    position: absolute;
-    width: 60px;
-    height: 200%;
-    top: -50%;
-    content: '';
-    z-index: 0;
+      svg,
+      span {
+        z-index: 10;
+      }
 
-    transform: skewY(-35deg) rotateZ(35deg);
+      &:before,
+      &:after {
+        position: absolute;
+        width: 60px;
+        height: 200%;
+        top: -50%;
+        content: "";
+        z-index: 0;
 
-    transition: transform 0.9s ease;
-  }
+        transform: skewY(-35deg) rotateZ(35deg);
 
-  &:before {
-    background: rgba(122, 118, 118, 0.308);
-    transform: skewY(-35deg) rotateZ(35deg) translateX(-120px);
-  }
+        transition: transform 0.9s ease;
+      }
 
-  &:after {
-    background: rgba(95, 85, 85, 0.308);
-    transform: skewY(-35deg) rotateZ(35deg) translateX(-160px);
-    transition-duration: 0.7s;
-  }
+      &:before {
+        background: rgba(122, 118, 118, 0.308);
+        transform: skewY(-35deg) rotateZ(35deg) translateX(-120px);
+      }
 
-  &:hover {
-    transform: scale(1.1);
-  }
+      &:after {
+        background: rgba(95, 85, 85, 0.308);
+        transform: skewY(-35deg) rotateZ(35deg) translateX(-160px);
+        transition-duration: 0.7s;
+      }
 
-  &:hover:before {
-    transform: skewY(-35deg) rotateZ(35deg) translateX(500%);
-  }
+      &:hover {
+        transform: scale(1.1);
+      }
 
-  &:hover:after {
-    transform: skewY(-35deg) rotateZ(35deg) translateX(500%);
+      &:hover:before {
+        transform: skewY(-35deg) rotateZ(35deg) translateX(500%);
+      }
+
+      &:hover:after {
+        transform: skewY(-35deg) rotateZ(35deg) translateX(500%);
+      }
+    }
   }
 }

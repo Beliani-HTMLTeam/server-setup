@@ -52,7 +52,7 @@ export class Sheet {
         this.sheetType,
         this.year
       )
-      const parsedData = ExcelParser.parseXLSXBuffer(buffer, sheetName)
+      const parsedData = await ExcelParser.parseXLSXBufferAsync(buffer, sheetName)
 
       if (!parsedData) {
         return { code: 404, message: 'No translations found or error parsing!' }
@@ -79,7 +79,7 @@ export class Sheet {
     const start_time = Date.now()
     const cacheKey = this.getCacheKey(tabName)
 
-    if (await cache.has(cacheKey)) {
+    if (cache.has(cacheKey)) {
       // background worker handles expiration
       const data = await cache.get<Record<string, any[]>>(cacheKey)
       const age = cache.getAge(cacheKey)
@@ -169,18 +169,21 @@ export class Sheet {
 
     if (res.code === 200 && res.data) {
       const titles = Object.keys(res.data)
+      const CHUNK_SIZE = 5
 
-      for (const title of titles) {
-        const cacheKey = this.getCacheKey(title)
+      for (let i = 0; i < titles.length; i += CHUNK_SIZE) {
+        const chunk = titles.slice(i, i + CHUNK_SIZE)
 
-        await cache.set(
-          cacheKey,
-          res.data[title],
-          this.sheetType,
-          title,
-          this.year
-        )
+        for (const title of chunk) {
+          const cacheKey = this.getCacheKey(title)
+          await cache.set(cacheKey, res.data[title], this.sheetType, title, this.year)
+        }
+
+        if (i + CHUNK_SIZE < titles.length) {
+          await new Promise<void>((resolve) => setImmediate(resolve))
+        }
       }
+
       Hermes.log(
         `--> ✓ ${ActionPast} ${titles.length} tabs for ${this.sheetType}`
       )

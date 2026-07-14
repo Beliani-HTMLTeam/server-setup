@@ -24,7 +24,7 @@ class Cache {
     this.ttl = ttl * 1000
   }
 
-  async has(key: string): Promise<boolean> {
+  has(key: string): boolean {
     return this.store.has(key)
   }
 
@@ -35,7 +35,7 @@ class Cache {
     return decompress(entry.value) as T
   }
 
-  async getRaw(key: string): Promise<CacheEntry | undefined> {
+  getRaw(key: string): CacheEntry | undefined {
     return this.store.get(key)
   }
 
@@ -46,6 +46,8 @@ class Cache {
     tabName: string,
     year?: string
   ): Promise<void> {
+    await new Promise<void>((resolve) => setImmediate(resolve))
+
     const compressedValue: Compressed = compress(value)
 
     this.store.set(key, {
@@ -67,19 +69,6 @@ class Cache {
 
   keys(): string[] {
     return Array.from(this.store.keys())
-  }
-
-  values(): object[] {
-    return Array.from(this.store.values()).map((entry) =>
-      decompress(entry.value)
-    )
-  }
-
-  entries(): [string, object][] {
-    return Array.from(this.store.entries()).map(([key, entry]) => [
-      key,
-      decompress(entry.value),
-    ])
   }
 
   size(): number {

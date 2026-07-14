@@ -3,6 +3,29 @@ import cache, { CacheType } from '../services/Cache'
 import { Hermes } from './Logger'
 import { GoogleSheetsRepository } from '../services/GoogleSheetsRepository'
 import { ExcelParser } from './ExcelParser'
+import { cacheRefresher } from '../services/CacheRefresher'
+import settings from '../config'
+
+function calcRecacheIn(age: number | null): number {
+  const ttlSeconds = cache.getTTL() / 1000
+  const nextTickIn = cacheRefresher.getNextTickIn()
+
+  if (age === null) return Math.round(nextTickIn)
+
+  const timeUntilExpiry = Math.max(0, ttlSeconds - age)
+
+  // next tick will renew it
+  if (timeUntilExpiry === 0) return Math.round(nextTickIn)
+
+  // find the first tick that lands AFTER expiry
+  if (timeUntilExpiry <= nextTickIn) {
+    return Math.round(nextTickIn)
+  }
+
+  const timeAfterFirstTick = timeUntilExpiry - nextTickIn
+  const additionalTicks = Math.ceil(timeAfterFirstTick / settings.workerInterval)
+  return Math.round(nextTickIn + additionalTicks * settings.workerInterval)
+}
 
 export class Sheet {
   public sheetType: CacheType
@@ -50,6 +73,8 @@ export class Sheet {
     data: Record<string, any[]>
     dataOrigin: string
     executionTime: number
+    age: number | null
+    recacheIn: number
   } | null> {
     const start_time = Date.now()
     const cacheKey = this.getCacheKey(tabName)
@@ -58,6 +83,7 @@ export class Sheet {
       // background worker handles expiration
       const data = await cache.get<Record<string, any[]>>(cacheKey)
       const age = cache.getAge(cacheKey)
+      const recacheIn = calcRecacheIn(age)
       Hermes.log(
         `✓ Cache HIT for "${cacheKey}" (Age: ${age !== null ? age.toFixed(1) : '?'}s)`
       )
@@ -73,7 +99,9 @@ export class Sheet {
           ? {
               data: freshData,
               dataOrigin: 'googleAPI',
-              executionTime: Number((Date.now() - start_time).toFixed(2)),
+              executionTime: Number(((Date.now() - start_time) / 1000).toFixed(3)),
+              age: cache.getAge(cacheKey) !== null ? Number(cache.getAge(cacheKey)!.toFixed(1)) : null,
+              recacheIn: calcRecacheIn(cache.getAge(cacheKey)),
             }
           : null
       }
@@ -82,7 +110,9 @@ export class Sheet {
         ? {
             data,
             dataOrigin: 'cache',
-            executionTime: Number((Date.now() - start_time).toFixed(2)),
+            executionTime: Number(((Date.now() - start_time) / 1000).toFixed(3)),
+            age: age !== null ? Number(age.toFixed(1)) : null,
+            recacheIn,
           }
         : null
     }
@@ -97,7 +127,9 @@ export class Sheet {
       return {
         data: res.data,
         dataOrigin: 'googleAPI',
-        executionTime: Number((Date.now() - start_time).toFixed(2)),
+        executionTime: Number(((Date.now() - start_time) / 1000).toFixed(3)),
+        age: cache.getAge(cacheKey) !== null ? Number(cache.getAge(cacheKey)!.toFixed(1)) : null,
+        recacheIn: calcRecacheIn(cache.getAge(cacheKey)),
       }
     }
 
@@ -115,7 +147,7 @@ export class Sheet {
 
       Hermes.log(`✓ Cache renewed for "${tabName}"`)
 
-      return { executionTime: Number((Date.now() - start_time).toFixed(2)) }
+      return { executionTime: Number(((Date.now() - start_time) / 1000).toFixed(3)) }
     } else {
       throw new Error(`✖ Failed to force refresh ${tabName}: ${res.code}`)
     }
@@ -152,7 +184,7 @@ export class Sheet {
       Hermes.log(
         `--> ✓ ${ActionPast} ${titles.length} tabs for ${this.sheetType}`
       )
-      return { executionTime: Number((Date.now() - start_time).toFixed(2)) }
+      return { executionTime: Number(((Date.now() - start_time) / 1000).toFixed(3)) }
     } else {
       Hermes.error(
         `--> ✖ Failed to ${actionName} ${this.sheetType}`,

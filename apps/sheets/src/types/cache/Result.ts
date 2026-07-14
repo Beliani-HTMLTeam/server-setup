@@ -7,4 +7,7 @@ export interface Result<T> {
   details?: string
   dataOrigin?: 'cache' | 'googleAPI'
   executionTime?: number
+  age?: number | null
+  recacheIn?: number
+  cacheSettings?: { ttl: number; workerInterval: number }
 }

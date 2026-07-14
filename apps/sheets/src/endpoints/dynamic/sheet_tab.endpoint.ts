@@ -77,6 +77,9 @@ export function registerDynamic(parent: any) {
               message: settings.endpoints.dynamic.messages.success_fetch,
               dataOrigin: envelope.dataOrigin as any,
               executionTime: envelope.executionTime,
+              age: envelope.age,
+              recacheIn: envelope.recacheIn,
+              cacheSettings: { ttl: settings.ttl, workerInterval: settings.workerInterval },
               keys,
               data,
             }
@@ -141,6 +144,9 @@ export function registerDynamic(parent: any) {
                 message: settings.endpoints.dynamic.messages.success_fetch,
                 dataOrigin: envelope.dataOrigin as any,
                 executionTime: envelope.executionTime,
+                age: envelope.age,
+                recacheIn: envelope.recacheIn,
+                cacheSettings: { ttl: settings.ttl, workerInterval: settings.workerInterval },
                 keys,
                 data,
               }

@@ -6,6 +6,7 @@ import { Hermes } from '../utils/Logger'
 class CacheRefresher {
   private isRenewing = false
   private intervalId?: ReturnType<typeof setInterval>
+  private lastTickAt: number = Date.now()
 
   start() {
     this.intervalId = setInterval(async () => {
@@ -19,7 +20,13 @@ class CacheRefresher {
     }
   }
 
+  getNextTickIn(): number {
+    const elapsedMs = Date.now() - this.lastTickAt
+    return Math.max(0, settings.workerInterval - elapsedMs / 1000)
+  }
+
   private async tick() {
+    this.lastTickAt = Date.now()
     if (!cache.isPrewarmed) return
     if (this.isRenewing) return
     this.isRenewing = true
@@ -36,7 +43,7 @@ class CacheRefresher {
         let renewGlobal = false
 
         for (const key of expiredKeys) {
-          const raw = await cache.getRaw(key)
+          const raw = cache.getRaw(key)
           const age = cache.getAge(key)
           Hermes.debug(
             ` > Key "${key}" expired (Age: ${age !== null ? age.toFixed(1) : '?'}s). Queued for recache.`

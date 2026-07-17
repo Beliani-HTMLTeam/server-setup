@@ -3,8 +3,6 @@ import { Elysia, t } from 'elysia'
 import cors from '@elysiajs/cors'
 import openapi from '@elysiajs/openapi'
 
-import { Sheet } from './utils/Sheet'
-
 import { registerDynamic } from './endpoints/dynamic/sheet_tab.endpoint'
 import { registerAllAtOnce } from './endpoints/static/registerAllAtOnce'
 import { registerOther } from './utils/registerEndpoints'

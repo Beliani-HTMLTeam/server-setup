@@ -32,6 +32,8 @@ class Cache {
     const entry = this.store.get(key)
     if (!entry) return undefined
 
+    // decompress() is synchronous - yield before heavy CPU work
+    await new Promise<void>((resolve) => setImmediate(resolve))
     return decompress(entry.value) as T
   }
 
@@ -46,9 +48,11 @@ class Cache {
     tabName: string,
     year?: string
   ): Promise<void> {
+    // yield before compress() - large objects can block event loop for 100s of ms
     await new Promise<void>((resolve) => setImmediate(resolve))
-
     const compressedValue: Compressed = compress(value)
+    // yield after compress() so other pending I/O can proceed
+    await new Promise<void>((resolve) => setImmediate(resolve))
 
     this.store.set(key, {
       value: compressedValue,

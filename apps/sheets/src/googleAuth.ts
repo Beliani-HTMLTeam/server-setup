@@ -21,6 +21,18 @@ const DYNAMIC_SHEETS: Record<string, GoogleSpreadsheet> = Object.fromEntries(
   ])
 )
 
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  const timeout = new Promise<never>((_, reject) =>
+    setTimeout(
+      () => reject(new Error(`[googleAuth] ${label} timed out after ${ms}ms`)),
+      ms
+    )
+  )
+  return Promise.race([promise, timeout])
+}
+
+const LOAD_INFO_TIMEOUT_MS = 15_000
+
 export function resolveYearFromSpreadsheetId(
   spreadsheetId: string
 ): string | undefined {
@@ -31,7 +43,11 @@ export function resolveYearFromSpreadsheetId(
 }
 
 export async function getStaticTranslations() {
-  await STATIC_TRANSLATIONS.loadInfo()
+  await withTimeout(
+    STATIC_TRANSLATIONS.loadInfo(),
+    LOAD_INFO_TIMEOUT_MS,
+    'getStaticTranslations loadInfo()'
+  )
   return STATIC_TRANSLATIONS
 }
 
@@ -41,6 +57,10 @@ export async function getDynamicTranslations(year?: string) {
   const doc = DYNAMIC_SHEETS[year]
   if (!doc) return undefined
 
-  await doc.loadInfo()
+  await withTimeout(
+    doc.loadInfo(),
+    LOAD_INFO_TIMEOUT_MS,
+    `getDynamicTranslations loadInfo() [year=${year}]`
+  )
   return doc
 }

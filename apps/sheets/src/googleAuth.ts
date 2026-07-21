@@ -21,17 +21,31 @@ const DYNAMIC_SHEETS: Record<string, GoogleSpreadsheet> = Object.fromEntries(
   ])
 )
 
-function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
-  const timeout = new Promise<never>((_, reject) =>
-    setTimeout(
-      () => reject(new Error(`[googleAuth] ${label} timed out after ${ms}ms`)),
-      ms
-    )
-  )
-  return Promise.race([promise, timeout])
-}
-
 const LOAD_INFO_TIMEOUT_MS = 15_000
+
+async function loadInfoWithTimeout(
+  doc: GoogleSpreadsheet,
+  ms: number,
+  label: string
+): Promise<void> {
+  let timedOut = false
+  const timeout = new Promise<never>((_, reject) =>
+    setTimeout(() => {
+      timedOut = true
+      reject(new Error(`[googleAuth] ${label} timed out after ${ms}ms`))
+    }, ms)
+  )
+
+  try {
+    await Promise.race([doc.loadInfo(), timeout])
+  } catch (err) {
+    if (timedOut) {
+      console.log(`[googleAuth] ${label} timed out after ${ms}ms`)
+      ;(doc as any).__timedOut = true
+    }
+    throw err
+  }
+}
 
 export function resolveYearFromSpreadsheetId(
   spreadsheetId: string
@@ -43,8 +57,8 @@ export function resolveYearFromSpreadsheetId(
 }
 
 export async function getStaticTranslations() {
-  await withTimeout(
-    STATIC_TRANSLATIONS.loadInfo(),
+  await loadInfoWithTimeout(
+    STATIC_TRANSLATIONS,
     LOAD_INFO_TIMEOUT_MS,
     'getStaticTranslations loadInfo()'
   )
@@ -54,13 +68,24 @@ export async function getStaticTranslations() {
 export async function getDynamicTranslations(year?: string) {
   if (!year) return undefined
 
-  const doc = DYNAMIC_SHEETS[year]
+  let doc = DYNAMIC_SHEETS[year]
   if (!doc) return undefined
 
-  await withTimeout(
-    doc.loadInfo(),
-    LOAD_INFO_TIMEOUT_MS,
-    `getDynamicTranslations loadInfo() [year=${year}]`
-  )
+  try {
+    await loadInfoWithTimeout(
+      doc,
+      LOAD_INFO_TIMEOUT_MS,
+      `getDynamicTranslations loadInfo() [year=${year}]`
+    )
+  } catch (err) {
+    if ((doc as any).__timedOut) {
+      DYNAMIC_SHEETS[year] = new GoogleSpreadsheet(
+        (DYNAMIC_SHEETS[year] as any).spreadsheetId,
+        xlsxAccount
+      )
+    }
+    throw err
+  }
+
   return doc
 }

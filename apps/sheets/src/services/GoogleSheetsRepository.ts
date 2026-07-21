@@ -2,6 +2,8 @@ import { getStaticTranslations, getDynamicTranslations } from '../googleAuth'
 import type { CacheType } from './Cache'
 import { Hermes } from '../utils/Logger'
 
+const DOWNLOAD_TIMEOUT_MS = 60_000
+
 export class GoogleSheetsRepository {
   static async fetchDocumentBuffer(
     sheetType: CacheType,
@@ -23,7 +25,14 @@ export class GoogleSheetsRepository {
     }
 
     try {
-      return await document.downloadAsXLSX()
+      const download = document.downloadAsXLSX()
+      const timeout = new Promise<never>((_, reject) =>
+        setTimeout(
+          () => reject(new Error(`[GoogleSheetsRepository] downloadAsXLSX() timed out after ${DOWNLOAD_TIMEOUT_MS / 1000}s`)),
+          DOWNLOAD_TIMEOUT_MS
+        )
+      )
+      return await Promise.race([download, timeout])
     } catch (err: any) {
       Hermes.error('✖ Failed to download document as XLSX:', err.message)
       throw new Error('Failed to download spreadsheet!')

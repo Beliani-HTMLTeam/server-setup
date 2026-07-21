@@ -3,6 +3,8 @@ import { Sheet } from '../utils/Sheet'
 import settings from '../config'
 import { Hermes } from '../utils/Logger'
 
+const TICK_TIMEOUT_MS = 5 * 60 * 1000
+
 class CacheRefresher {
   private isRenewing = false
   private intervalId?: ReturnType<typeof setInterval>
@@ -31,9 +33,9 @@ class CacheRefresher {
     if (this.isRenewing) return
     this.isRenewing = true
 
-    Hermes.log(`$ Checking for expired cache entries...`)
+    const tickWork = async () => {
+      Hermes.log(`$ Checking for expired cache entries...`)
 
-    try {
       const expiredKeys = cache.keys().filter((key) => cache.isExpired(key))
 
       if (expiredKeys.length > 0) {
@@ -53,12 +55,9 @@ class CacheRefresher {
             newsletterTranslationsKeys.add(raw.year)
           } else if (raw?.type === 'globalTranslations') {
             renewGlobal = true
-          } else {
-            await cache.renew(key)
           }
         }
 
-        // renew all at once, prevents rate limiting issues
         if (renewGlobal) {
           Hermes.debug(` > - Renewing all global translations...`)
           try {
@@ -92,6 +91,18 @@ class CacheRefresher {
           }
         }
       }
+    }
+
+    try {
+      await Promise.race([
+        tickWork(),
+        new Promise<void>((_, reject) =>
+          setTimeout(
+            () => reject(new Error(`[CacheRefresher] tick() exceeded ${TICK_TIMEOUT_MS / 60000}min hard limit`)),
+            TICK_TIMEOUT_MS
+          )
+        ),
+      ])
     } catch (err) {
       Hermes.error(`✖ Worker error:`, err)
     } finally {

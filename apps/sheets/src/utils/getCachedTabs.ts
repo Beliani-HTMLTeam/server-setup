@@ -29,6 +29,8 @@ const getCachedTabs = async (year?: string) => {
   const keys = cache.keys()
   const tabs = new Set<string>()
 
+	const keyPrefix = year ? `dynamic_${year}_` : null
+
   let fullTitles: string[] = []
   if (year) {
     try {
@@ -37,37 +39,33 @@ const getCachedTabs = async (year?: string) => {
         fullTitles = doc.sheetsByIndex.map(sheet => sheet.title)
       }
     } catch (e) {
-      Hermes.error('[getCachedTabs] Failed to fetch dynamic translations to map full titles', e)
+      Hermes.error('[getCachedTabs] Failed to fetch full titles', e)
     }
   }
 
   let sampleKey: string | null = null
 
-  Hermes.debug(`[getCachedTabs] Requested year: "${year}". Total cache keys: ${keys.length}`);
-
   for (const key of keys) {
+    if (keyPrefix && !key.startsWith(keyPrefix)) continue
+
     const entry = cache.getRaw(key)
-    if (entry && entry.tabName) {
-      if (!year || String(entry.year).trim() === String(year).trim() || (year === 'all')) {
-        if (!sampleKey) sampleKey = key
+    if (!entry || !entry.tabName) continue
 
-        let finalTabName = entry.tabName
-        
-        if (fullTitles.length > 0) {
-          const matched = fullTitles.find(
-            t => t.trim().slice(0, 31).trim() === entry.tabName || t === entry.tabName
-          )
-          if (matched) {
-            finalTabName = matched
-          }
-        }
+    if (!sampleKey) sampleKey = key
 
-        tabs.add(finalTabName)
+    let finalTabName = entry.tabName
+
+    if (fullTitles.length > 0) {
+      const matched = fullTitles.find(
+        t => t.trim().slice(0, 31).trim() === entry.tabName || t === entry.tabName
+      )
+      if (matched) {
+        finalTabName = matched
       }
     }
-  }
 
-  Hermes.debug(`[getCachedTabs] Found ${tabs.size} tabs for year "${year}"`);
+    tabs.add(finalTabName)
+  }
 
   const age = sampleKey ? cache.getAge(sampleKey) : null
   const recacheIn = sampleKey ? calcRecacheIn(age) : null

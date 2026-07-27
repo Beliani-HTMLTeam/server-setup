@@ -2,6 +2,7 @@ import cache from '../services/Cache'
 import { getDynamicTranslations } from '../googleAuth'
 import { cacheRefresher } from '../services/CacheRefresher'
 import settings from '../config'
+import { Hermes } from './Logger'
 
 function calcRecacheIn(age: number | null): number {
   const ttlSeconds = cache.getTTL() / 1000
@@ -36,16 +37,18 @@ const getCachedTabs = async (year?: string) => {
         fullTitles = doc.sheetsByIndex.map(sheet => sheet.title)
       }
     } catch (e) {
-      console.error('[getCachedTabs] Failed to fetch dynamic translations to map full titles', e)
+      Hermes.error('[getCachedTabs] Failed to fetch dynamic translations to map full titles', e)
     }
   }
 
   let sampleKey: string | null = null
 
+  Hermes.debug(`[getCachedTabs] Requested year: "${year}". Total cache keys: ${keys.length}`);
+
   for (const key of keys) {
     const entry = cache.getRaw(key)
     if (entry && entry.tabName) {
-      if (!year || entry.year === year) {
+      if (!year || String(entry.year).trim() === String(year).trim() || (year === 'all')) {
         if (!sampleKey) sampleKey = key
 
         let finalTabName = entry.tabName
@@ -63,6 +66,8 @@ const getCachedTabs = async (year?: string) => {
       }
     }
   }
+
+  Hermes.debug(`[getCachedTabs] Found ${tabs.size} tabs for year "${year}"`);
 
   const age = sampleKey ? cache.getAge(sampleKey) : null
   const recacheIn = sampleKey ? calcRecacheIn(age) : null

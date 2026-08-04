@@ -79,6 +79,28 @@ export function registerAllAtOnce(parent: any) {
           schema(endp)
         )
 
+        // get all keys
+        .get(
+          '/keys',
+          async (context: any): Promise<Result<any>> => {
+            const sheet = new Sheet('globalTranslations')
+            const res = await sheet.getTab(endp.sheetName)
+            if (!res) {
+              context.set.status = 404
+              return { code: 404, message: messages.not_found }
+            }
+
+            return {
+              code: 200,
+              message: endp.messages.success_fetch,
+              executionTime: res.executionTime,
+              dataOrigin: res.dataOrigin as any,
+              data: Object.keys(res.data),
+            }
+          },
+          schema(endp)
+        )
+
         .group('/lang', (_lang: any) =>
           _lang
             // list available slugs

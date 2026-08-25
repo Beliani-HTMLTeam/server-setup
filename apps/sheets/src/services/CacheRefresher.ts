@@ -3,7 +3,7 @@ import { Sheet } from '../utils/Sheet'
 import settings from '../config'
 import { Hermes } from '../utils/Logger'
 
-const TICK_TIMEOUT_MS = 5 * 60 * 1000
+const TICK_TIMEOUT_MS = 10 * 60 * 1000 // 10 minutes
 
 class CacheRefresher {
   private isRenewing = false
@@ -34,62 +34,32 @@ class CacheRefresher {
     this.isRenewing = true
 
     const tickWork = async () => {
-      Hermes.log(`$ Checking for expired cache entries...`)
+      Hermes.info(`$ Starting scheduled cache refresh...`)
 
-      const expiredKeys = cache.keys().filter((key) => cache.isExpired(key))
+      // recache global translations
+      try {
+        Hermes.info(` > - Renewing all global translations...`)
+        
+				const globalSheet = new Sheet('globalTranslations')
+        await globalSheet.recache('everything')
 
-      if (expiredKeys.length > 0) {
-        Hermes.info(` > Found %s expired keys. Renewing...`, expiredKeys.length)
+				Hermes.info(` > ✔ Global translations renewed!`)
+      } catch (err) {
+        Hermes.error(` > ✖ Failed to mass-refresh globalTranslations:`, err)
+      }
 
-        const newsletterTranslationsKeys = new Set<string>()
-        let renewGlobal = false
-
-        for (const key of expiredKeys) {
-          const raw = cache.getRaw(key)
-          const age = cache.getAge(key)
-          Hermes.debug(
-            ` > Key "${key}" expired (Age: ${age !== null ? age.toFixed(1) : '?'}s). Queued for recache.`
-          )
-
-          if (raw?.type === 'newsletterTranslations' && raw.year) {
-            newsletterTranslationsKeys.add(raw.year)
-          } else if (raw?.type === 'globalTranslations') {
-            renewGlobal = true
-          }
-        }
-
-        if (renewGlobal) {
-          Hermes.debug(` > - Renewing all global translations...`)
-          try {
-            const sheet = new Sheet('globalTranslations')
-
-            await sheet.recache('everything')
-
-            Hermes.debug(` > ✔ Global translations renewed!`)
-          } catch (err) {
-            Hermes.error(` > ✖ Failed to mass-refresh globalTranslations:`, err)
-          }
-        }
-
-        // for newsletter translations, we can batch them by year
-        for (const year of newsletterTranslationsKeys) {
-          Hermes.debug(
-            ` > - Mass-refreshing all newsletter translations for year:`,
-            year
-          )
-
-          try {
-            const sheet = new Sheet('newsletterTranslations', year)
-
-            await sheet.recache('everything')
-
-            Hermes.debug(
-              ` > ✔ Year ${year} refreshed successfully without hitting Google API limits.`
-            )
-          } catch (err) {
-            Hermes.error(` > ✖ Failed to mass-refresh year ${year}:`, err)
-          }
-        }
+      // recache the current year newsletter translations
+      try {
+        const currentYear = new Date().getFullYear().toString()
+        
+				Hermes.info(` > - Mass-refreshing all newsletter translations for year: ${currentYear}`)
+        
+				const dynamicSheet = new Sheet('newsletterTranslations', currentYear)
+        await dynamicSheet.recache('everything')
+        
+				Hermes.info(` > ✔ Year ${currentYear} refreshed successfully.`)
+      } catch (err) {
+        Hermes.error(` > ✖ Failed to mass-refresh year:`, err)
       }
     }
 

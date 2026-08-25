@@ -21,7 +21,7 @@ const DYNAMIC_SHEETS: Record<string, GoogleSpreadsheet> = Object.fromEntries(
   ])
 )
 
-const LOAD_INFO_TIMEOUT_MS = 15_000
+const LOAD_INFO_TIMEOUT_MS = 30_000
 
 async function loadInfoWithTimeout(
   doc: GoogleSpreadsheet,

@@ -37,6 +37,33 @@ class Cache {
     return decompress(entry.value) as T
   }
 
+  /**
+   * returns data + metadata from a single get()
+   * eliminates race between separate has(), get(), getAge() calls
+   * returns null if entry doesnt exist or decompression fails (triggers cache miss)
+   */
+  async getWithMeta<T = Record<string, any[]>>(key: string): Promise<{
+    data: T
+    age: number
+    timestamp: number
+  } | null> {
+    const entry = this.store.get(key)
+    if (!entry) return null
+
+    const age = (Date.now() - entry.timestamp) / 1000
+
+    // yield before compress()
+    await new Promise<void>((resolve) => setImmediate(resolve))
+
+    try {
+      const data = decompress(entry.value) as T
+      if (!data) return null
+      return { data, age, timestamp: entry.timestamp }
+    } catch {
+      return null
+    }
+  }
+
   getRaw(key: string): CacheEntry | undefined {
     return this.store.get(key)
   }

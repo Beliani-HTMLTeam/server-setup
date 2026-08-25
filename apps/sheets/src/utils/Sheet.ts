@@ -79,64 +79,66 @@ export class Sheet {
     const start_time = Date.now()
     const cacheKey = this.getCacheKey(tabName)
 
-    if (cache.has(cacheKey)) {
-      // background worker handles expiration
-      const data = await cache.get<Record<string, any[]>>(cacheKey)
-      const age = cache.getAge(cacheKey)
+    // returns data + age from same get() - no race between has/get/getAge
+    const cached = await cache.getWithMeta<Record<string, any[]>>(cacheKey)
+
+    if (cached) {
+      const { data, age } = cached
       const recacheIn = calcRecacheIn(age)
       Hermes.log(
-        `✓ Cache HIT for "${cacheKey}" (Age: ${age !== null ? age.toFixed(1) : '?'}s)`
+        `✓ Cache HIT for "${cacheKey}" (Age: ${age.toFixed(1)}s)`
       )
 
-      if (age !== null && age > cache.getTTL() / 1000) {
+      if (age > cache.getTTL() / 1000) {
         Hermes.debug(
           ` > Cache is stale (Age > TTL). Refreshing before responding...`
         )
         await cache.renew(cacheKey)
 
-        const freshData = await cache.get<Record<string, any[]>>(cacheKey)
-        return freshData
-          ? {
-              data: freshData,
-              dataOrigin: 'googleAPI',
-              executionTime: Number(((Date.now() - start_time) / 1000).toFixed(3)),
-              age: cache.getAge(cacheKey) !== null ? Number(cache.getAge(cacheKey)!.toFixed(1)) : null,
-              recacheIn: calcRecacheIn(cache.getAge(cacheKey)),
-            }
-          : null
-      }
-
-      return data
-        ? {
-            data,
-            dataOrigin: 'cache',
+        const fresh = await cache.getWithMeta<Record<string, any[]>>(cacheKey)
+        if (fresh) {
+          return {
+            data: fresh.data,
+            dataOrigin: 'googleAPI',
             executionTime: Number(((Date.now() - start_time) / 1000).toFixed(3)),
-            age: age !== null ? Number(age.toFixed(1)) : null,
-            recacheIn,
+            age: Number(fresh.age.toFixed(1)),
+            recacheIn: calcRecacheIn(fresh.age),
           }
-        : null
+        }
+
+        // if renew failed and fresh read failed, fall through to cache miss
+      } else {
+        return {
+          data,
+          dataOrigin: 'cache',
+          executionTime: Number(((Date.now() - start_time) / 1000).toFixed(3)),
+          age: Number(age.toFixed(1)),
+          recacheIn,
+        }
+      }
     }
 
-    // cache miss - we fetch it, save it, and return it
+    // cache miss (or broken cache hit) - fetch fresh data from Google API
     Hermes.log(`✖ Cache MISS for "${cacheKey}". Fetching from Google API...`)
     const res = await this.getNewData(tabName)
 
     if (res.code === 200 && res.data) {
       await cache.set(cacheKey, res.data, this.sheetType, tabName, this.year)
 
+      const freshAge = cache.getAge(cacheKey)
       return {
         data: res.data,
         dataOrigin: 'googleAPI',
         executionTime: Number(((Date.now() - start_time) / 1000).toFixed(3)),
-        age: cache.getAge(cacheKey) !== null ? Number(cache.getAge(cacheKey)!.toFixed(1)) : null,
-        recacheIn: calcRecacheIn(cache.getAge(cacheKey)),
+        age: freshAge !== null ? Number(freshAge.toFixed(1)) : 0,
+        recacheIn: calcRecacheIn(freshAge),
       }
     }
 
     return null
   }
 
-  //force renew tab without waiting for worker
+  // force renew tab without waiting for worker
   async forceRefresh(tabName: string): Promise<{ executionTime: number }> {
     const start_time = Date.now()
     const cacheKey = this.getCacheKey(tabName)

@@ -22,6 +22,7 @@ function processSheet(
     const matrix: any[][] = xlsx.utils.sheet_to_json(sheet, {
       header: 1,
       defval: null,
+      raw: false,
     })
     if (!matrix || matrix.length === 0) return null
 
